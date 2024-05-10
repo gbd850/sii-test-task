@@ -1,7 +1,6 @@
 package com.test.sii.model;
 
-import com.test.sii.util.PromoCodePattern;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -15,35 +14,10 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "promo_codes_monetary")
-public class PromoCodeMonetary {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(
-            nullable = false,
-            unique = true,
-            length = 24
-    )
-    @PromoCodePattern
-    private String code;
-
-    private Date expirationDate;
-
-    private int maxUsages;
-
-    private int usages;
+public class PromoCodeMonetary extends PromoCode {
 
     private BigDecimal amount;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(
-            name = "currency_id",
-            referencedColumnName = "id"
-    )
-    private Currency currency;
 
     public PromoCodeMonetary(String code, Date expirationDate, int maxUsages, BigDecimal amount, Currency currency) {
         this.code = code;
@@ -69,7 +43,7 @@ public class PromoCodeMonetary {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         PromoCodeMonetary that = (PromoCodeMonetary) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+        return id != null && Objects.equals(id, that.id);
     }
 
     @Override
