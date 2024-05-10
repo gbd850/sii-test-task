@@ -1,6 +1,6 @@
 package com.test.sii.model;
 
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -14,26 +14,32 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class PromoCodeMonetary extends PromoCode {
+@Table(name = "purchases")
+public class Purchase {
 
-    private BigDecimal amount;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
+    private Date date;
 
-    public PromoCodeMonetary(String code, Date expirationDate, int maxUsages, BigDecimal amount, Currency currency) {
-        this.code = code;
-        this.expirationDate = expirationDate;
-        this.maxUsages = maxUsages;
-        this.usages = 0;
-        this.amount = amount;
-        this.currency = currency;
-    }
+    private BigDecimal regularPrice;
 
-    public void use() throws Exception {
-        if (this.usages >= this.maxUsages) {
-            throw new Exception("Cannot use this code - reached maximum usages");
-        }
-        this.usages++;
-    }
+    private BigDecimal discountAmount;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "promo_code_id",
+            referencedColumnName = "id"
+    )
+    private PromoCode promoCode;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "product_id",
+            referencedColumnName = "id"
+    )
+    private Product product;
 
     @Override
     public final boolean equals(Object o) {
@@ -42,8 +48,8 @@ public class PromoCodeMonetary extends PromoCode {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        PromoCodeMonetary that = (PromoCodeMonetary) o;
-        return id != null && Objects.equals(id, that.id);
+        Purchase purchase = (Purchase) o;
+        return getId() != null && Objects.equals(getId(), purchase.getId());
     }
 
     @Override
