@@ -6,16 +6,17 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.Locale;
 
-public record PromoCodeMonetaryRequest(
+public record PromoCodeRequest(
 
         @PromoCodePattern
         String code,
         Date expirationDate,
         int maxUsages,
         BigDecimal amount,
-        String currency
+        String currency,
+        DiscountMethod discountMethod
 ) {
-    public PromoCodeMonetaryRequest {
+    public PromoCodeRequest {
         currency = currency.toUpperCase(Locale.ROOT);
     }
 }

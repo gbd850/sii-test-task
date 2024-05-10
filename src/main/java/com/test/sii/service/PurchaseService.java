@@ -6,10 +6,9 @@ import com.test.sii.dto.PurchaseRequest;
 import com.test.sii.dto.PurchaseResponse;
 import com.test.sii.model.Product;
 import com.test.sii.model.PromoCode;
-import com.test.sii.model.PromoCodeMonetary;
 import com.test.sii.model.Purchase;
 import com.test.sii.repository.ProductRepository;
-import com.test.sii.repository.PromoCodeMonetaryRepository;
+import com.test.sii.repository.PromoCodeRepository;
 import com.test.sii.repository.PurchaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,10 +25,10 @@ public class PurchaseService {
 
     private final PurchaseRepository purchaseRepository;
     private final ProductRepository productRepository;
-    private final PromoCodeMonetaryRepository promoCodeMonetaryRepository;
+    private final PromoCodeRepository promoCodeRepository;
 
-    private PromoCodeMonetary getPromoCodeMonetary(String promoCode) {
-        return promoCodeMonetaryRepository.findByCode(promoCode)
+    private PromoCode getPromoCode(String promoCode) {
+        return promoCodeRepository.findByCode(promoCode)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Promo code not found", new Exception("Promo code " + promoCode + " was not found")));
     }
 
@@ -48,18 +47,18 @@ public class PurchaseService {
         return null;
     }
 
-    public PurchaseDiscountResponse getDiscountPrice(Integer productId, String promoCode) {
+    public PurchaseDiscountResponse getDiscountPrice(Integer productId, String code) {
         Product product = getProduct(productId);
 
-        PromoCodeMonetary promoCodeMonetary = getPromoCodeMonetary(promoCode);
+        PromoCode promoCode = getPromoCode(code);
 
-        PurchaseDiscountResponse error = validatePromoCodeWithProduct(promoCodeMonetary, product);
+        PurchaseDiscountResponse error = validatePromoCodeWithProduct(promoCode, product);
 
         if (error != null) {
             return error;
         }
 
-        BigDecimal discountPrice = promoCodeMonetary.calculateDiscountPrice(product);
+        BigDecimal discountPrice = promoCode.calculateDiscountPrice(product);
 
         return new PurchaseDiscountResponse(discountPrice, product.getCurrency().getCurrency(), null);
     }
@@ -68,20 +67,20 @@ public class PurchaseService {
     public PurchaseResponse createPurchase(PurchaseRequest purchaseRequest) {
         Product product = getProduct(purchaseRequest.productId());
 
-        PromoCodeMonetary promoCodeMonetary = getPromoCodeMonetary(purchaseRequest.promoCode());
+        PromoCode promoCode = getPromoCode(purchaseRequest.promoCode());
 
         Purchase purchase = new Purchase();
 
         purchase.setDate(new Date(Date.from(Instant.now()).getTime()));
         purchase.setRegularPrice(product.getPrice());
-        purchase.setDiscountAmount(promoCodeMonetary.getAmount());
-        purchase.setPromoCode(promoCodeMonetary);
+        purchase.setDiscountAmount(promoCode.getAmount());
+        purchase.setPromoCode(promoCode);
         purchase.setProduct(product);
 
         try {
             purchaseRepository.save(purchase);
-            promoCodeMonetary.use();
-            promoCodeMonetaryRepository.save(promoCodeMonetary);
+            promoCode.use();
+            promoCodeRepository.save(promoCode);
         }
         catch (Exception e) {
             e.printStackTrace();

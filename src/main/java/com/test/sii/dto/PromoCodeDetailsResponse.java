@@ -3,11 +3,14 @@ package com.test.sii.dto;
 import java.math.BigDecimal;
 import java.sql.Date;
 
-public record PromoCodeMonetaryResponse(
+public record PromoCodeDetailsResponse(
 
         String code,
         Date expirationDate,
+        int maxUsages,
+        int usages,
         BigDecimal amount,
-        String currency
+        String currency,
+        DiscountMethod discountMethod
 ) {
 }
