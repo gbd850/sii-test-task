@@ -1,5 +1,6 @@
 package com.test.sii.model;
 
+import com.test.sii.dto.DiscountMethod;
 import jakarta.persistence.Entity;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -20,19 +21,8 @@ public class PromoCodeMonetary extends PromoCode {
 
 
     public PromoCodeMonetary(String code, Date expirationDate, int maxUsages, BigDecimal amount, Currency currency) {
-        this.code = code;
-        this.expirationDate = expirationDate;
-        this.maxUsages = maxUsages;
-        this.usages = 0;
+        super(null, code, expirationDate, maxUsages, 0, currency);
         this.amount = amount;
-        this.currency = currency;
-    }
-
-    public void use() throws Exception {
-        if (this.usages >= this.maxUsages) {
-            throw new Exception("Cannot use this code - reached maximum usages");
-        }
-        this.usages++;
     }
 
     @Override
@@ -49,5 +39,15 @@ public class PromoCodeMonetary extends PromoCode {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    @Override
+    public BigDecimal calculateDiscountPrice(Product product) {
+        return product.getPrice().subtract(this.amount).max(BigDecimal.ZERO);
+    }
+
+    @Override
+    public DiscountMethod getDiscountMethod() {
+        return DiscountMethod.MONETARY;
     }
 }
