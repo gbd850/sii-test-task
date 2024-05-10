@@ -1,6 +1,6 @@
 package com.test.sii.controller;
 
-import com.test.sii.dto.PromoCodeMonetaryDetailsResponse;
+import com.test.sii.dto.PromoCodeDetailsResponse;
 import com.test.sii.dto.PromoCodeRequest;
 import com.test.sii.dto.PromoCodeResponse;
 import com.test.sii.service.PromoCodeService;
@@ -38,7 +38,7 @@ public class PromoCodeController {
     }
 
     @GetMapping("/details/{promoCode}")
-    public ResponseEntity<PromoCodeMonetaryDetailsResponse> getPromoCodeDetails(@PathVariable("promoCode") @PromoCodePattern String promoCode) {
+    public ResponseEntity<PromoCodeDetailsResponse> getPromoCodeDetails(@PathVariable("promoCode") @PromoCodePattern String promoCode) {
         return new ResponseEntity<>(promoCodeService.getPromoCodeDetails(promoCode), HttpStatus.OK);
     }
 }

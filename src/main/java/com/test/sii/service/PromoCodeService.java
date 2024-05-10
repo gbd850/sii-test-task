@@ -1,6 +1,6 @@
 package com.test.sii.service;
 
-import com.test.sii.dto.PromoCodeMonetaryDetailsResponse;
+import com.test.sii.dto.PromoCodeDetailsResponse;
 import com.test.sii.dto.PromoCodeRequest;
 import com.test.sii.dto.PromoCodeResponse;
 import com.test.sii.model.Currency;
@@ -90,17 +90,18 @@ public class PromoCodeService {
         );
     }
 
-    public PromoCodeMonetaryDetailsResponse getPromoCodeDetails(String promoCode) {
-        PromoCode promoCodeMonetary = promoCodeRepository.findByCode(promoCode)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Promo code not found", new Exception("Promo code " + promoCode + " was not found")));
+    public PromoCodeDetailsResponse getPromoCodeDetails(String code) {
+        PromoCode promoCode = promoCodeRepository.findByCode(code)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Promo code not found", new Exception("Promo code " + code + " was not found")));
 
-        return new PromoCodeMonetaryDetailsResponse(
-                promoCodeMonetary.getCode(),
-                promoCodeMonetary.getExpirationDate(),
-                promoCodeMonetary.getMaxUsages(),
-                promoCodeMonetary.getUsages(),
-                promoCodeMonetary.getAmount(),
-                promoCodeMonetary.getCurrency().getCurrency()
+        return new PromoCodeDetailsResponse(
+                promoCode.getCode(),
+                promoCode.getExpirationDate(),
+                promoCode.getMaxUsages(),
+                promoCode.getUsages(),
+                promoCode.getAmount(),
+                promoCode.getCurrency().getCurrency(),
+                promoCode.getDiscountMethod()
         );
     }
 
