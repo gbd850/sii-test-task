@@ -4,6 +4,8 @@ import com.test.sii.dto.DiscountMethod;
 import com.test.sii.util.PromoCodePattern;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -43,9 +45,12 @@ public abstract class PromoCode {
     )
     protected Currency currency;
 
-    public void use() throws Exception {
+    public void use() throws ResponseStatusException {
         if (this.usages >= this.maxUsages) {
-            throw new Exception("Cannot use this code - reached maximum usages");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot use this code", new Exception("Cannot use this code - reached maximum usages"));
+        }
+        if (this.isExpired()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot use this code", new Exception("Cannot use this code - the promo code has expired"));
         }
         this.usages++;
     }

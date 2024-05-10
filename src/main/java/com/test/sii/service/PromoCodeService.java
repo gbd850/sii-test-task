@@ -51,7 +51,7 @@ public class PromoCodeService {
             promoCodeRepository.save(promoCode);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage(), new Exception(e.getCause().getMessage()));
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
         }
 
         return new PromoCodeResponse(
@@ -78,7 +78,7 @@ public class PromoCodeService {
             promoCodeRepository.save(promoCode);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage(), new Exception(e.getCause().getMessage()));
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
         }
 
         return new PromoCodeResponse(
