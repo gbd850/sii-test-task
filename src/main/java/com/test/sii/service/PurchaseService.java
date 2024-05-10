@@ -77,10 +77,20 @@ public class PurchaseService {
         purchase.setPromoCode(promoCode);
         purchase.setProduct(product);
 
+        String warning = null;
         try {
-            purchaseRepository.save(purchase);
             promoCode.use();
             promoCodeRepository.save(promoCode);
+        }
+        catch (ResponseStatusException e) {
+            warning = e.getCause().getMessage();
+        }
+
+        BigDecimal discountAmount = warning == null ? purchase.getDiscountAmount() : BigDecimal.ZERO;
+        purchase.setDiscountAmount(discountAmount);
+
+        try {
+            purchaseRepository.save(purchase);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -95,12 +105,15 @@ public class PurchaseService {
                 product.getCurrency().getCurrency()
         );
 
+
         return new PurchaseResponse(
                 purchase.getRegularPrice(),
                 purchase.getDiscountAmount(),
+                promoCode.getDiscountMethod(),
                 purchase.getDate(),
                 purchase.getPromoCode().getCode(),
-                productResponse
+                productResponse,
+                warning
         );
     }
 }
