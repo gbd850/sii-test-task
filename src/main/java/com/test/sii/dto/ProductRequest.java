@@ -10,6 +10,6 @@ public record ProductRequest(
         String currency
 ) {
     public ProductRequest {
-        currency = currency.toUpperCase(Locale.ROOT);
+        currency = currency != null ? currency.toUpperCase(Locale.ROOT) : null;
     }
 }
