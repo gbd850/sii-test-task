@@ -29,13 +29,6 @@ public class Purchase {
 
     @ManyToOne
     @JoinColumn(
-            name = "promo_code_id",
-            referencedColumnName = "id"
-    )
-    private PromoCode promoCode;
-
-    @ManyToOne
-    @JoinColumn(
             name = "product_id",
             referencedColumnName = "id"
     )

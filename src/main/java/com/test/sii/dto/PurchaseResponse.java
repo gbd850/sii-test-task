@@ -7,9 +7,7 @@ public record PurchaseResponse(
 
         BigDecimal regularPrice,
         BigDecimal discountAmount,
-        DiscountMethod discountMethod,
         Date date,
-        String promoCode,
         ProductResponse product,
         String warning
 ) {
