@@ -61,6 +61,8 @@ public abstract class PromoCode {
 
     public abstract BigDecimal calculateDiscountPrice(Product product);
 
+    public abstract BigDecimal calculateDiscountAmount(Product product);
+
     public abstract BigDecimal getAmount();
 
     public abstract DiscountMethod getDiscountMethod();

@@ -43,7 +43,14 @@ public class PromoCodePercentage extends PromoCode {
 
     @Override
     public BigDecimal calculateDiscountPrice(Product product) {
-        return product.getPrice().subtract(product.getPrice().multiply(this.amount.divide(BigDecimal.valueOf(100)))).setScale(this.amount.scale(), RoundingMode.HALF_UP);
+        return product.getPrice().subtract(this.calculateDiscountAmount(product))
+                .setScale(this.amount.scale(), RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public BigDecimal calculateDiscountAmount(Product product) {
+        return product.getPrice().multiply(this.amount.divide(BigDecimal.valueOf(100)))
+                .setScale(this.amount.scale(), RoundingMode.HALF_UP);
     }
 
     @Override
