@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.Instant;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -74,19 +75,23 @@ public class PurchaseService {
         purchase.setDate(new Date(Date.from(Instant.now()).getTime()));
         purchase.setRegularPrice(product.getPrice());
         purchase.setDiscountAmount(promoCode.getAmount());
-        purchase.setPromoCode(promoCode);
         purchase.setProduct(product);
 
-        String warning = null;
-        try {
-            promoCode.use();
-            promoCodeRepository.save(promoCode);
-        }
-        catch (ResponseStatusException e) {
-            warning = e.getCause().getMessage();
+        String warning = Objects.requireNonNullElse(
+                validatePromoCodeWithProduct(promoCode, product),
+                new PurchaseDiscountResponse(null, null, null))
+                .warning();
+
+        if (warning == null) {
+            try {
+                promoCode.use();
+                promoCodeRepository.save(promoCode);
+            } catch (ResponseStatusException e) {
+                warning = e.getCause().getMessage();
+            }
         }
 
-        BigDecimal discountAmount = warning == null ? purchase.getDiscountAmount() : BigDecimal.ZERO;
+        BigDecimal discountAmount = warning == null ? promoCode.calculateDiscountAmount(product) : BigDecimal.ZERO;
         purchase.setDiscountAmount(discountAmount);
 
         try {
@@ -109,9 +114,7 @@ public class PurchaseService {
         return new PurchaseResponse(
                 purchase.getRegularPrice(),
                 purchase.getDiscountAmount(),
-                promoCode.getDiscountMethod(),
                 purchase.getDate(),
-                purchase.getPromoCode().getCode(),
                 productResponse,
                 warning
         );

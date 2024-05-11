@@ -47,6 +47,11 @@ public class PromoCodeMonetary extends PromoCode {
     }
 
     @Override
+    public BigDecimal calculateDiscountAmount(Product product) {
+        return product.getPrice().compareTo(this.amount) < 0 ? product.getPrice() : this.amount;
+    }
+
+    @Override
     public DiscountMethod getDiscountMethod() {
         return DiscountMethod.MONETARY;
     }
