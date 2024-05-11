@@ -1,5 +1,6 @@
 package com.test.sii.service;
 
+import com.test.sii.dto.ProductCreateRequest;
 import com.test.sii.dto.ProductRequest;
 import com.test.sii.dto.ProductResponse;
 import com.test.sii.dto.ProductUpdateRequest;
@@ -7,15 +8,18 @@ import com.test.sii.model.Currency;
 import com.test.sii.model.Product;
 import com.test.sii.repository.CurrencyRepository;
 import com.test.sii.repository.ProductRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -35,7 +39,7 @@ public class ProductService {
                 .toList();
     }
 
-    public ProductResponse createProduct(ProductRequest productRequest) {
+    public ProductResponse createProduct(@Valid ProductCreateRequest productRequest) {
 
         Product product = new Product();
         product.setName(productRequest.name());
