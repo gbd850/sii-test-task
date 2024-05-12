@@ -95,14 +95,17 @@ class ProductServiceTest {
                 "USD"
         );
 
+        Currency currency = new Currency(1, "USD");
+
         given(currencyRepository.findByCurrency(any())).willReturn(Optional.empty());
+        given(currencyRepository.save(any())).willReturn(currency);
 
         Product expected = new Product(
                 1,
                 productRequest.name(),
                 productRequest.description(),
                 productRequest.price(),
-                new Currency(1, "USD")
+                currency
         );
 
         given(productRepository.save(any())).willReturn(expected);
@@ -203,7 +206,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void givenValidProductIdAndValidProductRequestWithExistingCurrency_whenUpdateProduct_thenCreateNewProduct() {
+    void givenValidProductIdAndValidProductRequestWithExistingCurrency_whenUpdateProduct_thenUpdateProduct() {
         // given
         Integer productId = 1;
         ProductRequest productRequest = new ProductRequest(
@@ -215,7 +218,8 @@ class ProductServiceTest {
 
         Currency currency = new Currency(1, "USD");
 
-        given(currencyRepository.findByCurrency(any())).willReturn(Optional.of(currency));
+        given(currencyRepository.findByCurrency(any())).willReturn(Optional.empty());
+        given(currencyRepository.save(any())).willReturn(currency);
 
         Product product = new Product(
                 1,
@@ -266,7 +270,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void givenValidProductIdAndValidProductRequestWithNewCurrency_whenUpdateProduct_thenCreateNewProduct() {
+    void givenValidProductIdAndValidProductRequestWithNewCurrency_whenUpdateProduct_thenUpdateProduct() {
         // given
         Integer productId = 1;
         ProductRequest productRequest = new ProductRequest(
@@ -276,14 +280,17 @@ class ProductServiceTest {
                 "EUR"
         );
 
+        Currency currency = new Currency(1, "USD");
+
         given(currencyRepository.findByCurrency(any())).willReturn(Optional.empty());
+        given(currencyRepository.save(any())).willReturn(currency);
 
         Product product = new Product(
                 1,
                 "Product 2",
                 "Description of Product 2",
                 BigDecimal.valueOf(100.00),
-                new Currency(1, "USD")
+                currency
         );
 
         given(productRepository.findById(productId)).willReturn(Optional.of(product));
@@ -293,7 +300,7 @@ class ProductServiceTest {
                 productRequest.name(),
                 product.getDescription(),
                 product.getPrice(),
-                new Currency(null, productRequest.currency())
+                currency
         );
 
         given(productRepository.save(any())).willReturn(expected);

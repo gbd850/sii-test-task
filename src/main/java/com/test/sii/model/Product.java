@@ -29,21 +29,23 @@ public class Product {
 
     private String description;
 
+    @Column(nullable = false)
     private BigDecimal price;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(
             name = "currency_id",
-            referencedColumnName = "id"
+            referencedColumnName = "id",
+            nullable = false
     )
     private Currency currency;
 
     public final void updateFieldsByRequest(ProductUpdateRequest productRequest) {
 
         this.name = Objects.requireNonNullElse(productRequest.name(), this.name);
-        this.description = Objects.requireNonNullElse(productRequest.description(), this.description);
+        this.description = this.description != null ? Objects.requireNonNullElse(productRequest.description(), this.description) : productRequest.description();
         this.price = Objects.requireNonNullElse(productRequest.price(), this.price);
-        this.currency = Objects.requireNonNullElse(productRequest.currency(), this.currency);
+        this.currency = productRequest.currency().getCurrency() != null && !productRequest.currency().getCurrency().isEmpty() ? productRequest.currency() : this.currency;
     }
 
     @Override

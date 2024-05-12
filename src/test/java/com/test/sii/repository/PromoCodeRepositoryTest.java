@@ -21,6 +21,9 @@ class PromoCodeRepositoryTest {
     @Autowired
     private PromoCodeRepository promoCodeRepository;
 
+    @Autowired
+    private CurrencyRepository currencyRepository;
+
     @AfterEach
     void tearDown() {
         promoCodeRepository.deleteAll();
@@ -30,12 +33,16 @@ class PromoCodeRepositoryTest {
     void givenValidMonetaryPromoCode_whenFindByCode_thenReturnPromoCodeMonetary() {
         // given
         String code = "promoCodeExample";
+
+        Currency currency = new Currency(null, "USD");
+        currency = currencyRepository.save(currency);
+
         PromoCodeMonetary promoCode = new PromoCodeMonetary(
                 code,
                 Date.valueOf("2024-10-15"),
                 10,
                 BigDecimal.valueOf(45.0),
-                new Currency(null, "USD")
+                currency
         );
 
         PromoCode expected = promoCodeRepository.save(promoCode);
@@ -55,12 +62,16 @@ class PromoCodeRepositoryTest {
     void givenValidPercentagePromoCode_whenFindByCode_thenReturnPromoCodePercentage() {
         // given
         String code = "promoCodeExample";
+
+        Currency currency = new Currency(null, "USD");
+        currency = currencyRepository.save(currency);
+
         PromoCodePercentage promoCode = new PromoCodePercentage(
                 code,
                 Date.valueOf("2024-10-15"),
                 10,
                 BigDecimal.valueOf(45.0),
-                new Currency(null, "USD")
+                currency
         );
 
         PromoCode expected = promoCodeRepository.save(promoCode);

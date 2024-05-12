@@ -4,10 +4,7 @@ import com.test.sii.dto.DiscountMethod;
 import com.test.sii.dto.PromoCodeDetailsResponse;
 import com.test.sii.dto.PromoCodeRequest;
 import com.test.sii.dto.PromoCodeResponse;
-import com.test.sii.model.Currency;
-import com.test.sii.model.PromoCode;
-import com.test.sii.model.PromoCodeMonetary;
-import com.test.sii.model.PromoCodePercentage;
+import com.test.sii.model.*;
 import com.test.sii.repository.CurrencyRepository;
 import com.test.sii.repository.PromoCodeRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -168,6 +165,10 @@ class PromoCodeServiceTest {
 
         given(currencyRepository.findByCurrency(any())).willReturn(Optional.empty());
 
+        Currency currency = new Currency(1, promoCodeRequest.currency());
+
+        given(currencyRepository.save(any())).willReturn(currency);
+
         // when
         PromoCodeResponse actualResponse = promoCodeService.createMonetaryPromoCode(promoCodeRequest);
 
@@ -183,7 +184,7 @@ class PromoCodeServiceTest {
                 promoCodeRequest.expirationDate(),
                 promoCodeRequest.maxUsages(),
                 promoCodeRequest.amount(),
-                new Currency(null, promoCodeRequest.currency())
+                currency
         );
 
         assertThat(actual)
@@ -288,6 +289,10 @@ class PromoCodeServiceTest {
 
         given(currencyRepository.findByCurrency(any())).willReturn(Optional.empty());
 
+        Currency currency = new Currency(1, promoCodeRequest.currency());
+
+        given(currencyRepository.save(any())).willReturn(currency);
+
         // when
         PromoCodeResponse actualResponse = promoCodeService.createPercentagePromoCode(promoCodeRequest);
 
@@ -303,7 +308,7 @@ class PromoCodeServiceTest {
                 promoCodeRequest.expirationDate(),
                 promoCodeRequest.maxUsages(),
                 promoCodeRequest.amount(),
-                new Currency(null, promoCodeRequest.currency())
+                currency
         );
 
         assertThat(actual)

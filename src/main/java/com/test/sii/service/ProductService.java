@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,6 +40,7 @@ public class ProductService {
                 .toList();
     }
 
+    @Transactional
     public ProductResponse createProduct(@Valid ProductCreateRequest productRequest) {
 
         Product product = new Product();
@@ -46,8 +48,10 @@ public class ProductService {
         product.setDescription(productRequest.description());
         product.setPrice(productRequest.price());
 
-        Currency currency = currencyRepository.findByCurrency(productRequest.currency())
-                .orElse(new Currency(null, productRequest.currency()));
+        Currency currency = currencyRepository.findByCurrency(productRequest.currency()).orElse(null);
+        if (currency == null) {
+            currency = currencyRepository.save(new Currency(null, productRequest.currency()));
+        }
         product.setCurrency(currency);
 
         try {
@@ -60,14 +64,16 @@ public class ProductService {
         return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCurrency().getCurrency());
     }
 
-
+    @Transactional
     public ProductResponse updateProduct(Integer id, ProductRequest productRequest) {
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found", new Exception("Product with id " + id + " was not found")));
 
-        Currency currency = currencyRepository.findByCurrency(productRequest.currency())
-                .orElse(new Currency(null, productRequest.currency()));
+        Currency currency = currencyRepository.findByCurrency(productRequest.currency()).orElse(null);
+        if (currency == null) {
+            currency = currencyRepository.save(new Currency(null, productRequest.currency()));
+        }
 
         ProductUpdateRequest productUpdateRequest = new ProductUpdateRequest(
                 productRequest.name(),

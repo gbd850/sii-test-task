@@ -12,6 +12,7 @@ import com.test.sii.repository.PromoCodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -35,9 +36,12 @@ public class PromoCodeService {
                 .toList();
     }
 
+    @Transactional
     public PromoCodeResponse createMonetaryPromoCode(PromoCodeRequest promoCodeRequest) {
-        Currency currency = currencyRepository.findByCurrency(promoCodeRequest.currency())
-                .orElse(new Currency(null, promoCodeRequest.currency()));
+        Currency currency = currencyRepository.findByCurrency(promoCodeRequest.currency()).orElse(null);
+        if (currency == null) {
+            currency = currencyRepository.save(new Currency(null, promoCodeRequest.currency()));
+        }
 
         PromoCode promoCode = new PromoCodeMonetary(
                 promoCodeRequest.code(),
@@ -62,9 +66,13 @@ public class PromoCodeService {
                 promoCode.getDiscountMethod()
         );
     }
+
+    @Transactional
     public PromoCodeResponse createPercentagePromoCode(PromoCodeRequest promoCodeRequest) {
-        Currency currency = currencyRepository.findByCurrency(promoCodeRequest.currency())
-                .orElse(new Currency(null, promoCodeRequest.currency()));
+        Currency currency = currencyRepository.findByCurrency(promoCodeRequest.currency()).orElse(null);
+        if (currency == null) {
+            currency = currencyRepository.save(new Currency(null, promoCodeRequest.currency()));
+        }
 
         PromoCode promoCode = new PromoCodePercentage(
                 promoCodeRequest.code(),
