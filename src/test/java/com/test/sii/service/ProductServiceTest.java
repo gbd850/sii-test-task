@@ -203,7 +203,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void givenValidProductIdAndValidProductRequestWithExistingCurrency_whenUpdateProduct_thenCreateNewProduct() {
+    void givenValidProductIdAndValidProductRequestWithExistingCurrency_whenUpdateProduct_thenUpdateProduct() {
         // given
         Integer productId = 1;
         ProductRequest productRequest = new ProductRequest(
@@ -215,7 +215,7 @@ class ProductServiceTest {
 
         Currency currency = new Currency(1, "USD");
 
-        given(currencyRepository.findByCurrency(any())).willReturn(Optional.of(currency));
+        given(currencyRepository.findByCurrency(any())).willReturn(Optional.empty());
 
         Product product = new Product(
                 1,
@@ -266,7 +266,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void givenValidProductIdAndValidProductRequestWithNewCurrency_whenUpdateProduct_thenCreateNewProduct() {
+    void givenValidProductIdAndValidProductRequestWithNewCurrency_whenUpdateProduct_thenUpdateProduct() {
         // given
         Integer productId = 1;
         ProductRequest productRequest = new ProductRequest(
