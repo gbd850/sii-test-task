@@ -13,8 +13,7 @@ public record PromoCodeRequest(
         Date expirationDate,
         int maxUsages,
         BigDecimal amount,
-        String currency,
-        DiscountMethod discountMethod
+        String currency
 ) {
     public PromoCodeRequest {
         currency = currency.toUpperCase(Locale.ROOT);
