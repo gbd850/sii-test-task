@@ -94,13 +94,7 @@ public class PurchaseService {
         BigDecimal discountAmount = warning == null ? promoCode.calculateDiscountAmount(product) : BigDecimal.ZERO;
         purchase.setDiscountAmount(discountAmount);
 
-        try {
-            purchaseRepository.save(purchase);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
-        }
+        purchaseRepository.save(purchase);
 
         ProductResponse productResponse = new ProductResponse(
                 product.getId(),
