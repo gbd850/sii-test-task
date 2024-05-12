@@ -25,6 +25,9 @@ class PurchaseRepositoryTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private CurrencyRepository currencyRepository;
+
     @AfterEach
     void tearDown() {
         purchaseRepository.deleteAll();
@@ -33,12 +36,15 @@ class PurchaseRepositoryTest {
     @Test
     void givenExistingPurchases_whenGenerateSalesReport_thenReturnSalesReportEntriesList() {
         // given
+        Currency currency = new Currency(null, "USD");
+        currency = currencyRepository.save(currency);
+
         Product product = new Product(
                 null,
                 "Product 1",
                 null,
                 BigDecimal.valueOf(100.0),
-                new Currency(null, "USD")
+                currency
         );
         final Product finalProduct = productRepository.save(product);
 
@@ -80,19 +86,25 @@ class PurchaseRepositoryTest {
     @Test
     void givenExistingMultiCurrencyPurchases_whenGenerateSalesReport_thenReturnSalesReportEntriesList() {
         // given
+        Currency currency1 = new Currency(null, "USD");
+        currency1 = currencyRepository.save(currency1);
+
+        Currency currency2 = new Currency(null, "EUR");
+        currency2 = currencyRepository.save(currency2);
+
         final Product product1 = new Product(
                 null,
                 "Product 1",
                 null,
                 BigDecimal.valueOf(100.0),
-                new Currency(null, "USD")
+                currency1
         );
         final Product product2 = new Product(
                 null,
                 "Product 2",
                 null,
                 BigDecimal.valueOf(150.0),
-                new Currency(null, "EUR")
+                currency2
         );
 
         productRepository.saveAll(List.of(product1, product2));

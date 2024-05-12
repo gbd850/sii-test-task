@@ -14,6 +14,7 @@ import com.test.sii.repository.PromoCodeRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,15 +52,24 @@ class PromoCodeControllerTest {
         currencyRepository.deleteAll();
     }
 
+    @AfterEach
+    void tearDown() {
+        promoCodeRepository.deleteAll();
+        currencyRepository.deleteAll();
+    }
+
     @Test
     void givenExistingPromoCodes_whenGetAllPromoCodes_thenReturnPromoCodesList() {
         // given
+        Currency currency = new Currency(null, "USD");
+        currency = currencyRepository.save(currency);
+
         PromoCodeMonetary promoCode = new PromoCodeMonetary(
                 "promoCodeExample",
                 Date.valueOf(LocalDate.now().plusYears(1)),
                 100,
                 BigDecimal.valueOf(45.00),
-                new Currency(null, "USD")
+                currency
         );
         promoCodeRepository.save(promoCode);
 
@@ -169,12 +179,15 @@ class PromoCodeControllerTest {
                 "USD"
         );
 
+        Currency currency = new Currency(null, promoCodeRequest.currency());
+        currency = currencyRepository.save(currency);
+
         PromoCodeMonetary promoCode = new PromoCodeMonetary(
                 promoCodeRequest.code(),
                 promoCodeRequest.expirationDate(),
                 promoCodeRequest.maxUsages(),
                 promoCodeRequest.amount(),
-                new Currency(null, promoCodeRequest.currency())
+                currency
         );
         promoCodeRepository.save(promoCode);
 
@@ -272,12 +285,15 @@ class PromoCodeControllerTest {
                 "USD"
         );
 
+        Currency currency = new Currency(null, promoCodeRequest.currency());
+        currency = currencyRepository.save(currency);
+
         PromoCodePercentage promoCode = new PromoCodePercentage(
                 promoCodeRequest.code(),
                 promoCodeRequest.expirationDate(),
                 promoCodeRequest.maxUsages(),
                 promoCodeRequest.amount(),
-                new Currency(null, promoCodeRequest.currency())
+                currency
         );
         promoCodeRepository.save(promoCode);
 
@@ -324,12 +340,16 @@ class PromoCodeControllerTest {
     void givenValidPromoCode_whenGetPromoCodeDetails_thenReturnPromoCodeDetails() {
         // given
         String code = "promoCodeExample";
+
+        Currency currency = new Currency(null, "USD");
+        currency = currencyRepository.save(currency);
+
         PromoCodeMonetary promoCode = new PromoCodeMonetary(
                 code,
                 Date.valueOf(LocalDate.now().plusYears(1)),
                 100,
                 BigDecimal.valueOf(10.0),
-                new Currency(null, "USD")
+                currency
         );
         promoCodeRepository.save(promoCode);
 

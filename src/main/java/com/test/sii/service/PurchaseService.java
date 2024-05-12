@@ -13,6 +13,7 @@ import com.test.sii.repository.PurchaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -64,7 +65,7 @@ public class PurchaseService {
         return new PurchaseDiscountResponse(discountPrice, product.getCurrency().getCurrency(), null);
     }
 
-
+@Transactional
     public PurchaseResponse createPurchase(PurchaseRequest purchaseRequest) {
         Product product = getProduct(purchaseRequest.productId());
 

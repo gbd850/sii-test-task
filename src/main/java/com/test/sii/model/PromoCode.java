@@ -38,10 +38,11 @@ public abstract class PromoCode {
 
     protected int usages;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(
             name = "currency_id",
-            referencedColumnName = "id"
+            referencedColumnName = "id",
+            nullable = false
     )
     protected Currency currency;
 

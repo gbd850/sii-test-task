@@ -12,6 +12,7 @@ import com.test.sii.repository.ProductRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,15 +47,24 @@ class ProductControllerTest {
         currencyRepository.deleteAll();
     }
 
+    @AfterEach
+    void tearDown() {
+        productRepository.deleteAll();
+        currencyRepository.deleteAll();
+    }
+
     @Test
     void givenExistingProducts_whenGetAllProducts_thenReturnProductsList() {
         // given
+        Currency currency = new Currency(null, "USD");
+        currency = currencyRepository.save(currency);
+
         Product product = new Product(
                 null,
                 "Product 1",
                 null,
                 BigDecimal.valueOf(100.00),
-                new Currency(null, "USD")
+                currency
         );
 
         product = productRepository.save(product);
@@ -145,12 +155,15 @@ class ProductControllerTest {
     @Test
     void givenValidProductRequestWithDuplicateName_whenCreateProduct_thenReturnError() {
         // given
+        Currency currency = new Currency(null, "USD");
+        currency = currencyRepository.save(currency);
+
         Product product = new Product(
                 null,
                 "Product 1",
                 null,
                 BigDecimal.valueOf(100.00),
-                new Currency(null, "USD")
+                currency
         );
 
         productRepository.save(product);
@@ -210,12 +223,15 @@ class ProductControllerTest {
                 null
         );
 
+        Currency currency = new Currency(null, "USD");
+        currency = currencyRepository.save(currency);
+
         Product product = new Product(
                 null,
                 "Product 1",
                 null,
                 BigDecimal.valueOf(100.00),
-                new Currency(null, "USD")
+                currency
         );
 
         product = productRepository.save(product);
@@ -260,12 +276,15 @@ class ProductControllerTest {
                 null
         );
 
+        Currency currency = new Currency(null, "USD");
+        currency = currencyRepository.save(currency);
+
         Product product = new Product(
                 null,
                 "Product 1",
                 null,
                 BigDecimal.valueOf(100.00),
-                new Currency(null, "USD")
+                currency
         );
 
         product = productRepository.save(product);

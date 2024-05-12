@@ -32,7 +32,7 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(
             name = "currency_id",
             referencedColumnName = "id",

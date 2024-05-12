@@ -95,14 +95,17 @@ class ProductServiceTest {
                 "USD"
         );
 
+        Currency currency = new Currency(1, "USD");
+
         given(currencyRepository.findByCurrency(any())).willReturn(Optional.empty());
+        given(currencyRepository.save(any())).willReturn(currency);
 
         Product expected = new Product(
                 1,
                 productRequest.name(),
                 productRequest.description(),
                 productRequest.price(),
-                new Currency(1, "USD")
+                currency
         );
 
         given(productRepository.save(any())).willReturn(expected);
@@ -216,6 +219,7 @@ class ProductServiceTest {
         Currency currency = new Currency(1, "USD");
 
         given(currencyRepository.findByCurrency(any())).willReturn(Optional.empty());
+        given(currencyRepository.save(any())).willReturn(currency);
 
         Product product = new Product(
                 1,
@@ -276,14 +280,17 @@ class ProductServiceTest {
                 "EUR"
         );
 
+        Currency currency = new Currency(1, "USD");
+
         given(currencyRepository.findByCurrency(any())).willReturn(Optional.empty());
+        given(currencyRepository.save(any())).willReturn(currency);
 
         Product product = new Product(
                 1,
                 "Product 2",
                 "Description of Product 2",
                 BigDecimal.valueOf(100.00),
-                new Currency(1, "USD")
+                currency
         );
 
         given(productRepository.findById(productId)).willReturn(Optional.of(product));
@@ -293,7 +300,7 @@ class ProductServiceTest {
                 productRequest.name(),
                 product.getDescription(),
                 product.getPrice(),
-                new Currency(null, productRequest.currency())
+                currency
         );
 
         given(productRepository.save(any())).willReturn(expected);
