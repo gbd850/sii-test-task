@@ -40,6 +40,19 @@ public class ProductService {
                 .toList();
     }
 
+    private Currency getCurrency(String currency) {
+        Currency curr = currencyRepository.findByCurrency(currency).orElse(null);
+        if (curr == null) {
+            curr = currencyRepository.save(new Currency(null, currency));
+        }
+        return curr;
+    }
+
+    private Product getProduct(Integer id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found", new Exception("Product with id " + id + " was not found")));
+    }
+
     @Transactional
     public ProductResponse createProduct(@Valid ProductCreateRequest productRequest) {
 
@@ -48,10 +61,7 @@ public class ProductService {
         product.setDescription(productRequest.description());
         product.setPrice(productRequest.price());
 
-        Currency currency = currencyRepository.findByCurrency(productRequest.currency()).orElse(null);
-        if (currency == null) {
-            currency = currencyRepository.save(new Currency(null, productRequest.currency()));
-        }
+        Currency currency = getCurrency(productRequest.currency());
         product.setCurrency(currency);
 
         try {
@@ -64,16 +74,13 @@ public class ProductService {
         return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCurrency().getCurrency());
     }
 
+
     @Transactional
     public ProductResponse updateProduct(Integer id, ProductRequest productRequest) {
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found", new Exception("Product with id " + id + " was not found")));
+        Product product = getProduct(id);
 
-        Currency currency = currencyRepository.findByCurrency(productRequest.currency()).orElse(null);
-        if (currency == null) {
-            currency = currencyRepository.save(new Currency(null, productRequest.currency()));
-        }
+        Currency currency = getCurrency(productRequest.currency());
 
         ProductUpdateRequest productUpdateRequest = new ProductUpdateRequest(
                 productRequest.name(),
@@ -94,4 +101,5 @@ public class ProductService {
                 product.getCurrency().getCurrency()
         );
     }
+
 }

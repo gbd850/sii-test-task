@@ -24,6 +24,19 @@ public class PromoCodeService {
     private final PromoCodeRepository promoCodeRepository;
     private final CurrencyRepository currencyRepository;
 
+    private PromoCode getPromoCode(String code) {
+        return promoCodeRepository.findByCode(code)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Promo code not found", new Exception("Promo code " + code + " was not found")));
+    }
+
+    private Currency getCurrency(String currency) {
+        Currency curr = currencyRepository.findByCurrency(currency).orElse(null);
+        if (curr == null) {
+            curr = currencyRepository.save(new Currency(null, currency));
+        }
+        return curr;
+    }
+
     public List<PromoCodeResponse> getAllPromoCodes() {
         return promoCodeRepository.findAll().stream()
                 .map(promoCode -> new PromoCodeResponse(
@@ -38,10 +51,7 @@ public class PromoCodeService {
 
     @Transactional
     public PromoCodeResponse createMonetaryPromoCode(PromoCodeRequest promoCodeRequest) {
-        Currency currency = currencyRepository.findByCurrency(promoCodeRequest.currency()).orElse(null);
-        if (currency == null) {
-            currency = currencyRepository.save(new Currency(null, promoCodeRequest.currency()));
-        }
+        Currency currency = getCurrency(promoCodeRequest.currency());
 
         PromoCode promoCode = new PromoCodeMonetary(
                 promoCodeRequest.code(),
@@ -69,10 +79,7 @@ public class PromoCodeService {
 
     @Transactional
     public PromoCodeResponse createPercentagePromoCode(PromoCodeRequest promoCodeRequest) {
-        Currency currency = currencyRepository.findByCurrency(promoCodeRequest.currency()).orElse(null);
-        if (currency == null) {
-            currency = currencyRepository.save(new Currency(null, promoCodeRequest.currency()));
-        }
+        Currency currency = getCurrency(promoCodeRequest.currency());
 
         PromoCode promoCode = new PromoCodePercentage(
                 promoCodeRequest.code(),
@@ -98,9 +105,9 @@ public class PromoCodeService {
         );
     }
 
+
     public PromoCodeDetailsResponse getPromoCodeDetails(String code) {
-        PromoCode promoCode = promoCodeRepository.findByCode(code)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Promo code not found", new Exception("Promo code " + code + " was not found")));
+        PromoCode promoCode = getPromoCode(code);
 
         return new PromoCodeDetailsResponse(
                 promoCode.getCode(),
@@ -112,5 +119,6 @@ public class PromoCodeService {
                 promoCode.getDiscountMethod()
         );
     }
+
 
 }
