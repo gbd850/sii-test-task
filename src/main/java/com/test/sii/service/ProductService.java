@@ -41,8 +41,11 @@ public class ProductService {
     }
 
     private Currency getCurrency(String currency) {
-        return currencyRepository.findByCurrency(currency)
-                .orElse(currencyRepository.save(new Currency(null, currency)));
+        Currency curr = currencyRepository.findByCurrency(currency).orElse(null);
+        if (curr == null) {
+            curr = currencyRepository.save(new Currency(null, currency));
+        }
+        return curr;
     }
 
     private Product getProduct(Integer id) {
