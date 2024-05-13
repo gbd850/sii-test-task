@@ -4,7 +4,10 @@ import com.test.sii.dto.DiscountMethod;
 import com.test.sii.dto.PromoCodeDetailsResponse;
 import com.test.sii.dto.PromoCodeRequest;
 import com.test.sii.dto.PromoCodeResponse;
-import com.test.sii.model.*;
+import com.test.sii.model.Currency;
+import com.test.sii.model.PromoCode;
+import com.test.sii.model.PromoCodeMonetary;
+import com.test.sii.model.PromoCodePercentage;
 import com.test.sii.repository.CurrencyRepository;
 import com.test.sii.repository.PromoCodeRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -65,7 +70,7 @@ class PromoCodeServiceTest {
         given(promoCodeRepository.findAll()).willReturn(List.of(promoCodeMonetary, promoCodePercentage));
 
         // when
-        List<PromoCodeResponse> actual = promoCodeService.getAllPromoCodes();
+        List<PromoCodeResponse> actual = promoCodeService.getAllPromoCodes(null, null);
 
         // then
         List<PromoCodeResponse> expected = List.of(
@@ -91,15 +96,84 @@ class PromoCodeServiceTest {
     }
 
     @Test
+    void givenExistingPromoCodesWithPageAndSize_whenGetAllPromoCodes_thenReturnPaginatedPromoCodesList() {
+        // given
+        PromoCodeMonetary promoCodeMonetary = new PromoCodeMonetary(
+                "promoCodeMExample",
+                Date.valueOf("2024-10-10"),
+                100,
+                BigDecimal.valueOf(45.00),
+                new Currency(1, "USD")
+        );
+
+        PromoCodePercentage promoCodePercentage = new PromoCodePercentage(
+                "promoCodePExample",
+                Date.valueOf("2024-10-10"),
+                200,
+                BigDecimal.valueOf(25.00),
+                new Currency(1, "USD")
+        );
+
+        int page = 1;
+        int size = 1;
+
+        given(promoCodeRepository.findAll(PageRequest.of(page - 1, size))).willReturn(new PageImpl<>(List.of(promoCodeMonetary)));
+
+        // when
+        List<PromoCodeResponse> actual = promoCodeService.getAllPromoCodes(page, size);
+
+        // then
+        List<PromoCodeResponse> expected = List.of(
+                new PromoCodeResponse(
+                        promoCodeMonetary.getCode(),
+                        promoCodeMonetary.getExpirationDate(),
+                        promoCodeMonetary.getAmount(),
+                        promoCodeMonetary.getCurrency().getCurrency(),
+                        promoCodeMonetary.getDiscountMethod()
+                )
+        );
+
+        assertThat(actual)
+                .hasSize(expected.size())
+                .hasSameElementsAs(expected);
+    }
+
+    @Test
     void givenNoPromoCodes_whenGetAllPromoCodes_thenReturnEmptyList() {
         // given
         given(promoCodeRepository.findAll()).willReturn(List.of());
 
         // when
-        List<PromoCodeResponse> actual = promoCodeService.getAllPromoCodes();
+        List<PromoCodeResponse> actual = promoCodeService.getAllPromoCodes(null, null);
 
         // then
         assertThat(actual).isEmpty();
+    }
+
+    @Test
+    void givenPageNumberWithNoPageSize_whenGetAllPromoCodes_thenThrowException() {
+        // given
+        Integer page = 1;
+        Integer size = null;
+
+        // when
+        // then
+        assertThatThrownBy(() -> promoCodeService.getAllPromoCodes(page, size))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void givenNegativePageNumberWithPageSize_whenGetAllPromoCodes_thenThrowException() {
+        // given
+        Integer page = -1;
+        Integer size = 1;
+
+        // when
+        // then
+        assertThatThrownBy(() -> promoCodeService.getAllPromoCodes(page, size))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
