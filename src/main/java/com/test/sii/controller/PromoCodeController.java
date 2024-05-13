@@ -23,8 +23,11 @@ public class PromoCodeController {
     private final PromoCodeService promoCodeService;
 
     @GetMapping
-    public ResponseEntity<List<PromoCodeResponse>> getAllPromoCodes() {
-        return new ResponseEntity<>(promoCodeService.getAllPromoCodes(), HttpStatus.OK);
+    public ResponseEntity<List<PromoCodeResponse>> getAllPromoCodes(
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size
+    ) {
+        return new ResponseEntity<>(promoCodeService.getAllPromoCodes(page, size), HttpStatus.OK);
     }
 
     @PostMapping("monetary")

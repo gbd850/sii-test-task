@@ -3,13 +3,11 @@ package com.test.sii.service;
 import com.test.sii.dto.PromoCodeDetailsResponse;
 import com.test.sii.dto.PromoCodeRequest;
 import com.test.sii.dto.PromoCodeResponse;
-import com.test.sii.model.Currency;
-import com.test.sii.model.PromoCode;
-import com.test.sii.model.PromoCodeMonetary;
-import com.test.sii.model.PromoCodePercentage;
+import com.test.sii.model.*;
 import com.test.sii.repository.CurrencyRepository;
 import com.test.sii.repository.PromoCodeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,8 +35,18 @@ public class PromoCodeService {
         return curr;
     }
 
-    public List<PromoCodeResponse> getAllPromoCodes() {
-        return promoCodeRepository.findAll().stream()
+    public List<PromoCodeResponse> getAllPromoCodes(Integer page, Integer size) {
+        if (page != null && size == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page size must be specified", new Exception("Page size cannot be null when providing page number"));
+        }
+
+        if (page != null && page <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page number must not be less than zero", new Exception("Page number cannot be " + page));
+        }
+
+        List<PromoCode> result = page != null ? promoCodeRepository.findAll(PageRequest.of(page - 1, size)).getContent() : promoCodeRepository.findAll();
+
+        return result.stream()
                 .map(promoCode -> new PromoCodeResponse(
                         promoCode.getCode(),
                         promoCode.getExpirationDate(),
