@@ -40,6 +40,17 @@ public class Product {
     )
     private Currency currency;
 
+    @Version
+    private Long version;
+
+    public Product(Integer id, String name, String description, BigDecimal price, Currency currency) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.currency = currency;
+    }
+
     public final void updateFieldsByRequest(ProductUpdateRequest productRequest) {
 
         this.name = Objects.requireNonNullElse(productRequest.name(), this.name);

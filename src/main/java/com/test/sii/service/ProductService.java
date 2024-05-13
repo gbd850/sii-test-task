@@ -8,6 +8,7 @@ import com.test.sii.model.Currency;
 import com.test.sii.model.Product;
 import com.test.sii.repository.CurrencyRepository;
 import com.test.sii.repository.ProductRepository;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -74,7 +75,6 @@ public class ProductService {
         return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCurrency().getCurrency());
     }
 
-
     @Transactional
     public ProductResponse updateProduct(Integer id, ProductRequest productRequest) {
 
@@ -91,7 +91,13 @@ public class ProductService {
         );
         product.updateFieldsByRequest(productUpdateRequest);
 
-        product = productRepository.save(product);
+        try {
+            product = productRepository.save(product);
+        }
+        catch (OptimisticLockException e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, e.getMessage());
+        }
 
         return new ProductResponse(
                 product.getId(),
