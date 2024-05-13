@@ -11,6 +11,7 @@ import com.test.sii.repository.ProductRepository;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,9 +29,18 @@ public class ProductService {
     private final CurrencyRepository currencyRepository;
 
 
-    public List<ProductResponse> getAllProducts() {
+    public List<ProductResponse> getAllProducts(Integer page, Integer size) {
+        if (page != null && size == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page size must be specified", new Exception("Page size cannot be null when providing page number"));
+        }
 
-        return productRepository.findAll().stream()
+        if (page != null && page <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page number must not be less than zero", new Exception("Page number cannot be " + page));
+        }
+
+        List<Product> result = page != null ? productRepository.findAll(PageRequest.of(page - 1, size)).getContent() : productRepository.findAll();
+
+        return result.stream()
                 .map(product -> new ProductResponse(
                         product.getId(),
                         product.getName(),

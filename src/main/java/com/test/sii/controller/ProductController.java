@@ -22,8 +22,11 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
+    public ResponseEntity<List<ProductResponse>> getAllProducts(
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size
+            ) {
+        return new ResponseEntity<>(productService.getAllProducts(page, size), HttpStatus.OK);
     }
 
     @PostMapping

@@ -13,6 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -57,7 +59,40 @@ class ProductServiceTest {
         given(productRepository.findAll()).willReturn(List.of(product));
 
         // when
-        List<ProductResponse> actual = productService.getAllProducts();
+        List<ProductResponse> actual = productService.getAllProducts(null, null);
+
+        // then
+        List<ProductResponse> expected = List.of(
+                new ProductResponse(
+                        product.getId(),
+                        product.getName(),
+                        product.getDescription(),
+                        product.getPrice(),
+                        product.getCurrency().getCurrency()
+                )
+        );
+
+        assertThat(actual).hasSameElementsAs(expected);
+    }
+
+    @Test
+    void givenExistingProductsWithPageNumberAndSize_whenGetAllProducts_thenReturnPaginatedProductsList() {
+        // given
+        Product product = new Product(
+                1,
+                "Product 1",
+                null,
+                BigDecimal.valueOf(100.00),
+                new Currency(null, "USD")
+        );
+
+        int page = 1;
+        int size = 1;
+
+        given(productRepository.findAll(PageRequest.of(page - 1, size))).willReturn(new PageImpl<>(List.of(product)));
+
+        // when
+        List<ProductResponse> actual = productService.getAllProducts(page, size);
 
         // then
         List<ProductResponse> expected = List.of(
@@ -79,10 +114,36 @@ class ProductServiceTest {
         given(productRepository.findAll()).willReturn(List.of());
 
         // when
-        List<ProductResponse> actual = productService.getAllProducts();
+        List<ProductResponse> actual = productService.getAllProducts(null, null);
 
         // then
         assertThat(actual).isEmpty();
+    }
+
+    @Test
+    void givenPageNumberWithNoPageSize_whenGetAllProducts_thenThrowException() {
+        // given
+        Integer page = 1;
+        Integer size = null;
+
+        // when
+        // then
+        assertThatThrownBy(() -> productService.getAllProducts(page, size))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void givenNegativePageNumberWithPageSize_whenGetAllProducts_thenThrowException() {
+        // given
+        Integer page = -1;
+        Integer size = 1;
+
+        // when
+        // then
+        assertThatThrownBy(() -> productService.getAllProducts(page, size))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test
